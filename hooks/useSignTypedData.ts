@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import Web3 from "web3";
 import { useCallback, useState } from "react";
 
-export function useSignTypedData() {
+export function useSignTypedData(baseProvider: any) {
   const domain = {
     name: "Ether Mail",
     version: "1",
@@ -36,21 +36,21 @@ export function useSignTypedData() {
     contents: "Hello, Bob!",
   };
 
-  const [signature, setSignature] = useState(null);
+  const [signature, setSignature] = useState<string | null>(null);
 
   const signUsingEthers = useCallback(async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const provider = new ethers.providers.Web3Provider(baseProvider);
     const signer = provider.getSigner();
     const signature = await signer._signTypedData(domain, types, value);
     setSignature(signature);
 
     console.log("ethers", signature);
-  }, []);
+  }, [baseProvider]);
 
   const signUsingWeb3 = useCallback(async () => {
-    const web3 = new Web3(window.ethereum as any);
+    const web3 = new Web3(baseProvider);
 
-    const provider = web3.currentProvider as any;
+    const provider = baseProvider;
 
     const accounts = await web3.eth.getAccounts();
 
@@ -77,7 +77,7 @@ export function useSignTypedData() {
     setSignature(signature);
 
     console.log("web3", signature);
-  }, []);
+  }, [baseProvider]);
 
   return { signUsingEthers, signUsingWeb3, signature };
 }
